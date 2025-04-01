@@ -6,9 +6,9 @@ import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import IORedis from 'ioredis'
 
-import { AppModule } from './app.module'
-import { ms, StringValue } from './libs/common/util/ms.util'
-import { parseBoolean } from './libs/common/util/parse-boolean.util'
+import { AppModule } from './core/app.module'
+import { ms, StringValue } from './shared/utils/ms.util'
+import { parseBoolean } from './shared/utils/parse-boolean.util'
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)

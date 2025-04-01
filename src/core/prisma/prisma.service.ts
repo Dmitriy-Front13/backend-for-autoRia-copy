@@ -11,6 +11,6 @@ export class PrismaService
 	}
 
 	public async onModuleDestroy(): Promise<void> {
-		await this.$disconnect
+		await this.$disconnect()
 	}
 }
