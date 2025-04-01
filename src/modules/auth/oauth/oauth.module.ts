@@ -5,27 +5,27 @@ import {
 	TypeAsyncOptions,
 	TypeOptions
 } from './oauth.constants'
-import { ProviderService } from './oauth.service'
+import { OAuthService } from './oauth.service'
 
 @Module({})
-export class ProviderModule {
+export class OAuthModule {
 	public static register(options: TypeOptions): DynamicModule {
 		return {
-			module: ProviderModule,
+			module: OAuthModule,
 			providers: [
 				{
 					useValue: options.services,
 					provide: ProviderOptionsSymbol
 				},
-				ProviderService
+				OAuthService
 			],
-			exports: [ProviderService]
+			exports: [OAuthService]
 		}
 	}
 
 	public static registerAsync(options: TypeAsyncOptions): DynamicModule {
 		return {
-			module: ProviderModule,
+			module: OAuthModule,
 			imports: options.imports,
 			providers: [
 				{
@@ -33,9 +33,9 @@ export class ProviderModule {
 					provide: ProviderOptionsSymbol,
 					inject: options.inject
 				},
-				ProviderService
+				OAuthService
 			],
-			exports: [ProviderService]
+			exports: [OAuthService]
 		}
 	}
 }

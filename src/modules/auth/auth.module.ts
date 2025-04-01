@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha'
 
-import { getRecaptchaConfig } from '@/config/recaptcha.config'
+import { getRecaptchaConfig } from '@/modules/auth/config/recaptcha.config'
 import { UserService } from '@/modules/user/user.service'
 
+import { getOAuthConfig } from './config/oauth.config'
 import { AuthController } from './controllers/auth.controller'
+import { OAuthModule } from './oauth/oauth.module'
 import { AuthService } from './services/auth.service'
 
 @Module({
@@ -14,6 +16,11 @@ import { AuthService } from './services/auth.service'
 		GoogleRecaptchaModule.forRootAsync({
 			imports: [ConfigModule],
 			useFactory: getRecaptchaConfig,
+			inject: [ConfigService]
+		}),
+		OAuthModule.registerAsync({
+			imports: [ConfigModule],
+			useFactory: getOAuthConfig,
 			inject: [ConfigService]
 		})
 	],

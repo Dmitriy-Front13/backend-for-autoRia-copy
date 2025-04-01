@@ -4,7 +4,7 @@ import { ProviderOptionsSymbol, TypeOptions } from './oauth.constants'
 import { BaseOAuthService } from './services/base-oauth.service'
 
 @Injectable()
-export class ProviderService implements OnModuleInit {
+export class OAuthService implements OnModuleInit {
 	public constructor(
 		@Inject(ProviderOptionsSymbol) private readonly options: TypeOptions
 	) {}

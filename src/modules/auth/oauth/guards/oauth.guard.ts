@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common'
 import { Request } from 'express'
 
-import { ProviderService } from '../oauth.service'
+import { OAuthService } from '../oauth.service'
 
 @Injectable()
 export class OAuthGuard implements CanActivate {
-	public constructor(private readonly providerService: ProviderService) {}
+	public constructor(private readonly providerService: OAuthService) {}
 
 	public canActivate(context: ExecutionContext) {
 		const request = context.switchToHttp().getRequest() as Request
@@ -21,7 +21,7 @@ export class OAuthGuard implements CanActivate {
 
 		if (!providerInstance) {
 			throw new NotFoundException(
-				`Провайдер "${provider}" не найден. Пожалуйста, проверьте правильность введенных данных.`
+				`Provider "${provider}" not found. Please check the correctness of the entered data.`
 			)
 		}
 

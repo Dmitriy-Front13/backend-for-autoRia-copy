@@ -56,7 +56,7 @@ export class BaseOAuthService {
 
 		if (!tokensRequest.ok) {
 			throw new BadRequestException(
-				`Не удалось получить пользователя с ${this.options.profile_url}. Проверьте правильность токена доступа.`
+				`Failed to retrieve tokens from ${this.options.profile_url}. Please check the access token.`
 			)
 		}
 
@@ -64,7 +64,7 @@ export class BaseOAuthService {
 
 		if (!tokens.access_token) {
 			throw new BadRequestException(
-				`Нет токенов с ${this.options.access_url}. Убедитесь, что код авторизации действителен.`
+				`No access token received from ${this.options.access_url}. Make sure the authorization code is valid.`
 			)
 		}
 
@@ -76,7 +76,7 @@ export class BaseOAuthService {
 
 		if (!userRequest.ok) {
 			throw new UnauthorizedException(
-				`Не удалось получить пользователя с ${this.options.profile_url}. Проверьте правильность токена доступа.`
+				`Failed to retrieve user from ${this.options.profile_url}. Please check the access token.`
 			)
 		}
 
