@@ -9,13 +9,13 @@ export const getMailerConfig = async (
 	transport: {
 		host: configService.getOrThrow<string>('MAIL_HOST'),
 		port: configService.getOrThrow<number>('MAIL_PORT'),
-		secure: !isDev(configService),
+		secure: isDev(configService),
 		auth: {
 			user: configService.getOrThrow<string>('MAIL_LOGIN'),
 			pass: configService.getOrThrow<string>('MAIL_PASSWORD')
 		}
 	},
 	defaults: {
-		from: 'Auto RIA team'
+		from: '"Auto RIA team" onboarding@resend.dev'
 	}
 })

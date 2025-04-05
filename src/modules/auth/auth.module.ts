@@ -10,6 +10,8 @@ import { getOAuthConfig } from './config/oauth.config'
 import { AuthController } from './controllers/auth.controller'
 import { OAuthModule } from './oauth/oauth.module'
 import { AuthService } from './services/auth.service'
+import { EmailConfirmationService } from './services/email-confirmation.service'
+import { SessionService } from './services/session.service'
 
 @Module({
 	imports: [
@@ -26,6 +28,6 @@ import { AuthService } from './services/auth.service'
 		})
 	],
 	controllers: [AuthController],
-	providers: [AuthService]
+	providers: [AuthService, EmailConfirmationService, SessionService]
 })
 export class AuthModule {}

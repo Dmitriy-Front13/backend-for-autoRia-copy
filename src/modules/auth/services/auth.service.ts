@@ -6,7 +6,7 @@ import {
 	UnauthorizedException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { AuthMethod, User } from '@prisma/__generated__'
+import { AuthMethod } from '@prisma/__generated__'
 import { verify } from 'argon2'
 import { Request, Response } from 'express'
 
@@ -17,13 +17,18 @@ import { LoginDto } from '../dto/login.dto'
 import { RegisterDto } from '../dto/register.dto'
 import { OAuthService } from '../oauth/oauth.service'
 
+import { EmailConfirmationService } from './email-confirmation.service'
+import { SessionService } from './session.service'
+
 @Injectable()
 export class AuthService {
 	public constructor(
 		private readonly userService: UserService,
 		private readonly configService: ConfigService,
 		private readonly oauthService: OAuthService,
-		private readonly prismaService: PrismaService
+		private readonly prismaService: PrismaService,
+		private readonly emailConfirmationService: EmailConfirmationService,
+		private readonly sessionService: SessionService
 	) {}
 
 	public async register(dto: RegisterDto) {
@@ -42,7 +47,11 @@ export class AuthService {
 			AuthMethod.CREDENTIALS,
 			false
 		)
-		return newUser
+		await this.emailConfirmationService.sendVerificationToken(newUser.email)
+		return {
+			message:
+				'You have successfully registered. Please confirm your email.'
+		}
 	}
 
 	public async login(req: Request, dto: LoginDto) {
@@ -62,13 +71,6 @@ export class AuthService {
 			)
 		}
 
-		// if (!user.isVerified) {
-		//   await this.emailConfirmationService.sendVerificationToken(user.email)
-		//   throw new UnauthorizedException(
-		//     'Your email is not verified. Please check your inbox and confirm your address.'
-		//   )
-		// }
-
 		// if (user.isTwoFactorEnabled) {
 		//   if (!dto.code) {
 		//     await this.twoFactorAuthService.sendTwoFactorToken(user.email)
@@ -84,7 +86,7 @@ export class AuthService {
 		//   )
 		// }
 
-		return this.saveSession(req, user)
+		return this.sessionService.saveSession(req, user)
 	}
 
 	public async logout(req: Request, res: Response): Promise<void> {
@@ -126,7 +128,7 @@ export class AuthService {
 			: null
 
 		if (user) {
-			return this.saveSession(req, user)
+			return this.sessionService.saveSession(req, user)
 		}
 
 		user = await this.userService.create(
@@ -151,26 +153,6 @@ export class AuthService {
 			})
 		}
 
-		return this.saveSession(req, user)
-	}
-
-	private async saveSession(req: Request, user: User) {
-		return new Promise((resolve, reject) => {
-			req.session.userId = user.id
-
-			req.session.save(err => {
-				if (err) {
-					return reject(
-						new InternalServerErrorException(
-							'Failed to save session. Please make sure session settings are configured correctly.'
-						)
-					)
-				}
-
-				resolve({
-					user
-				})
-			})
-		})
+		return this.sessionService.saveSession(req, user)
 	}
 }

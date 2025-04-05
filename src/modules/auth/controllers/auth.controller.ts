@@ -16,18 +16,21 @@ import { ConfigService } from '@nestjs/config'
 import { Recaptcha } from '@nestlab/google-recaptcha'
 import { Request, Response } from 'express'
 
+import { ConfirmationDto } from '../dto/email-confirmation.dto'
 import { LoginDto } from '../dto/login.dto'
 import { RegisterDto } from '../dto/register.dto'
 import { OAuthGuard } from '../oauth/guards/oauth.guard'
 import { OAuthService } from '../oauth/oauth.service'
 import { AuthService } from '../services/auth.service'
+import { EmailConfirmationService } from '../services/email-confirmation.service'
 
 @Controller('auth')
 export class AuthController {
 	constructor(
 		private readonly authService: AuthService,
 		private readonly configService: ConfigService,
-		private readonly oauthService: OAuthService
+		private readonly oauthService: OAuthService,
+		private readonly emailConfirmationService: EmailConfirmationService
 	) {}
 
 	@Recaptcha()
@@ -82,5 +85,14 @@ export class AuthController {
 		@Res({ passthrough: true }) res: Response
 	) {
 		return this.authService.logout(req, res)
+	}
+
+	@Post('email-confirmation')
+	@HttpCode(HttpStatus.OK)
+	public async newVerification(
+		@Req() req: Request,
+		@Body() dto: ConfirmationDto
+	) {
+		return this.emailConfirmationService.newVerification(req, dto)
 	}
 }
