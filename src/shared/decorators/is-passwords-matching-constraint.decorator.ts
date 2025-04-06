@@ -4,14 +4,14 @@ import {
 	ValidatorConstraintInterface
 } from 'class-validator'
 
-import { RegisterDto } from '@/modules/auth/dto/register.dto'
+import { RegisterInput } from '@/modules/auth/inputs/register.input'
 
 @ValidatorConstraint({ name: 'IsPasswordsMatching', async: false })
 export class IsPasswordsMatchingConstraint
 	implements ValidatorConstraintInterface
 {
 	public validate(passwordRepeat: string, args: ValidationArguments) {
-		const obj = args.object as RegisterDto
+		const obj = args.object as RegisterInput
 		return obj.password === passwordRepeat
 	}
 

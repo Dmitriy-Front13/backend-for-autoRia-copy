@@ -8,7 +8,7 @@ export function getGraphQLConfig(): ApolloDriverConfig {
 		playground: false,
 		autoSchemaFile: join(process.cwd(), 'src/core/graphql/schema.gql'),
 		sortSchema: true,
-		context: ({ req }) => ({ req }),
+		context: ({ req, res }) => ({ req, res }),
 		plugins: [ApolloServerPluginLandingPageLocalDefault()]
 	}
 }

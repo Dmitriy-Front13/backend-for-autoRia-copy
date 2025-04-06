@@ -1,27 +1,15 @@
-import {
-	BadRequestException,
-	Injectable,
-	NotFoundException
-} from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { TokenType } from '@prisma/__generated__'
-import { Request } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import { MailService } from '@/core/mail/mail.service'
 import { PrismaService } from '@/core/prisma/prisma.service'
-import { UserService } from '@/modules/user/user.service'
-
-import { ConfirmationDto } from '../dto/email-confirmation.dto'
-
-import { SessionService } from './session.service'
 
 @Injectable()
 export class EmailConfirmationService {
 	public constructor(
 		private readonly prismaService: PrismaService,
-		private readonly userService: UserService,
-		private readonly mailService: MailService,
-		private readonly sessionService: SessionService
+		private readonly mailService: MailService
 	) {}
 
 	public async sendVerificationToken(email: string) {

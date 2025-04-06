@@ -1,5 +1,7 @@
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql'
-import { Request } from 'express'
+import { Request, Response } from 'express'
+
+import { MessageResponse } from '@/shared/models/message-response.model'
 
 import { RegisterInput } from '../inputs/register.input'
 import { RequestRegisterInput } from '../inputs/request-register.input'
@@ -16,8 +18,16 @@ export class AuthResolver {
 		return this.authService.register(context.req, input)
 	}
 
-	@Mutation(() => String)
+	@Mutation(() => MessageResponse)
 	requestRegister(@Args('input') input: RequestRegisterInput) {
 		return this.authService.requestRegister(input)
+	}
+
+	@Mutation(() => Boolean)
+	async logout(
+		@Context() context: { req: Request; res: Response }
+	): Promise<boolean> {
+		await this.authService.logout(context.req, context.res)
+		return true
 	}
 }

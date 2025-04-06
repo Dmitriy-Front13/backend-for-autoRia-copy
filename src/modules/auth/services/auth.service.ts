@@ -7,22 +7,19 @@ import {
 	UnauthorizedException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { AuthMethod, TokenType } from '@prisma/__generated__'
+import { AuthMethod, TokenType, User } from '@prisma/__generated__'
 import { verify } from 'argon2'
 import { Request, Response } from 'express'
 
 import { PrismaService } from '@/core/prisma/prisma.service'
 import { UserService } from '@/modules/user/user.service'
 
-import { LoginDto } from '../dto/login.dto'
-import { RegisterDto } from '../dto/register.dto'
 import { LoginInput } from '../inputs/login.input'
 import { RegisterInput } from '../inputs/register.input'
 import { RequestRegisterInput } from '../inputs/request-register.input'
 import { OAuthService } from '../oauth/oauth.service'
 
 import { EmailConfirmationService } from './email-confirmation.service'
-import { SessionService } from './session.service'
 
 @Injectable()
 export class AuthService {
@@ -31,8 +28,7 @@ export class AuthService {
 		private readonly configService: ConfigService,
 		private readonly oauthService: OAuthService,
 		private readonly prismaService: PrismaService,
-		private readonly emailConfirmationService: EmailConfirmationService,
-		private readonly sessionService: SessionService
+		private readonly emailConfirmationService: EmailConfirmationService
 	) {}
 
 	public async requestRegister(input: RequestRegisterInput) {
@@ -85,7 +81,7 @@ export class AuthService {
 			}
 		})
 
-		return this.sessionService.saveSession(req, user)
+		return this.saveSession(req, user)
 	}
 
 	public async login(req: Request, input: LoginInput) {
@@ -120,7 +116,56 @@ export class AuthService {
 		//   )
 		// }
 
-		return this.sessionService.saveSession(req, user)
+		return this.saveSession(req, user)
+	}
+
+	public async extractProfileFromCode(
+		req: Request,
+		provider: string,
+		code: string
+	) {
+		const providerInstance = this.oauthService.findByService(provider)
+
+		const profile = await providerInstance!.findUserByCode(code)
+
+		const account = await this.prismaService.account.findFirst({
+			where: {
+				id: profile.id,
+				provider: profile.provider
+			}
+		})
+
+		let user = account?.userId
+			? await this.userService.findById(account.userId)
+			: null
+
+		if (user) {
+			return this.saveSession(req, user)
+		}
+
+		user = await this.userService.create(
+			profile.email,
+			'',
+			profile.name,
+			profile.name,
+			profile.picture,
+			AuthMethod[profile.provider.toUpperCase()]
+		)
+
+		if (!account) {
+			await this.prismaService.account.create({
+				data: {
+					userId: user.id,
+					type: 'oauth',
+					provider: profile.provider,
+					accessToken: profile.access_token,
+					refreshToken: profile.refresh_token,
+					expiresAt: profile.expires_at || 0
+				}
+			})
+		}
+
+		return this.saveSession(req, user)
 	}
 
 	public async logout(req: Request, res: Response): Promise<void> {
@@ -141,52 +186,19 @@ export class AuthService {
 		})
 	}
 
-	// public async extractProfileFromCode(
-	// 	req: Request,
-	// 	provider: string,
-	// 	code: string
-	// ) {
-	// 	const providerInstance = this.oauthService.findByService(provider)
-
-	// 	const profile = await providerInstance!.findUserByCode(code)
-
-	// 	const account = await this.prismaService.account.findFirst({
-	// 		where: {
-	// 			id: profile.id,
-	// 			provider: profile.provider
-	// 		}
-	// 	})
-
-	// 	let user = account?.userId
-	// 		? await this.userService.findById(account.userId)
-	// 		: null
-
-	// 	if (user) {
-	// 		return this.sessionService.saveSession(req, user)
-	// 	}
-
-	// 	user = await this.userService.create(
-	// 		profile.email,
-	// 		'',
-	// 		profile.name,
-	// 		profile.picture,
-	// 		AuthMethod[profile.provider.toUpperCase()],
-	// 		true
-	// 	)
-
-	// 	if (!account) {
-	// 		await this.prismaService.account.create({
-	// 			data: {
-	// 				userId: user.id,
-	// 				type: 'oauth',
-	// 				provider: profile.provider,
-	// 				accessToken: profile.access_token,
-	// 				refreshToken: profile.refresh_token,
-	// 				expiresAt: profile.expires_at || 0
-	// 			}
-	// 		})
-	// 	}
-
-	// 	return this.sessionService.saveSession(req, user)
-	// }
+	private async saveSession(req: Request, user: User) {
+		return new Promise((resolve, reject) => {
+			req.session.userId = user.id
+			req.session.save(err => {
+				if (err) {
+					return reject(
+						new InternalServerErrorException(
+							'Failed to save session. Please make sure session settings are configured correctly.'
+						)
+					)
+				}
+				resolve({ user })
+			})
+		})
+	}
 }
