@@ -121,10 +121,11 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   password: 'password',
-  displayName: 'displayName',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  middleName: 'middleName',
   picture: 'picture',
   role: 'role',
-  isVerified: 'isVerified',
   isTwoFactorEnabled: 'isTwoFactorEnabled',
   method: 'method',
   createdAt: 'createdAt',
@@ -174,11 +175,11 @@ exports.UserRole = exports.$Enums.UserRole = {
 exports.AuthMethod = exports.$Enums.AuthMethod = {
   CREDENTIALS: 'CREDENTIALS',
   GOOGLE: 'GOOGLE',
-  YANDEX: 'YANDEX'
+  FACEBOOK: 'FACEBOOK'
 };
 
 exports.TokenType = exports.$Enums.TokenType = {
-  VERIFICATION: 'VERIFICATION',
+  REGISTRATION: 'REGISTRATION',
   TWO_FACTOR: 'TWO_FACTOR',
   PASSWORD_RESET: 'PASSWORD_RESET'
 };

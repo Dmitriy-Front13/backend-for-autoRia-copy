@@ -24,57 +24,6 @@ export class EmailConfirmationService {
 		private readonly sessionService: SessionService
 	) {}
 
-	public async newVerification(req: Request, dto: ConfirmationDto) {
-		const existingToken = await this.prismaService.token.findUnique({
-			where: {
-				token: dto.token,
-				type: TokenType.VERIFICATION
-			}
-		})
-
-		if (!existingToken) {
-			throw new NotFoundException(
-				'Confirmation token not found. Please make sure your token is correct.'
-			)
-		}
-
-		const hasExpired = new Date(existingToken.expiresIn) < new Date()
-
-		if (hasExpired) {
-			throw new BadRequestException(
-				'Confirmation token has expired. Please request a new one.'
-			)
-		}
-
-		const existingUser = await this.userService.findByEmail(
-			existingToken.email
-		)
-
-		if (!existingUser) {
-			throw new NotFoundException(
-				'User not found. Please check the email address and try again.'
-			)
-		}
-
-		await this.prismaService.user.update({
-			where: {
-				id: existingUser.id
-			},
-			data: {
-				isVerified: true
-			}
-		})
-
-		await this.prismaService.token.delete({
-			where: {
-				id: existingToken.id,
-				type: TokenType.VERIFICATION
-			}
-		})
-
-		return this.sessionService.saveSession(req, existingUser)
-	}
-
 	public async sendVerificationToken(email: string) {
 		const verificationToken = await this.generateVerificationToken(email)
 
@@ -93,7 +42,7 @@ export class EmailConfirmationService {
 		const existingToken = await this.prismaService.token.findFirst({
 			where: {
 				email,
-				type: TokenType.VERIFICATION
+				type: TokenType.REGISTRATION
 			}
 		})
 
@@ -101,7 +50,7 @@ export class EmailConfirmationService {
 			await this.prismaService.token.delete({
 				where: {
 					id: existingToken.id,
-					type: TokenType.VERIFICATION
+					type: TokenType.REGISTRATION
 				}
 			})
 		}
@@ -111,7 +60,7 @@ export class EmailConfirmationService {
 				email,
 				token,
 				expiresIn,
-				type: TokenType.VERIFICATION
+				type: TokenType.REGISTRATION
 			}
 		})
 

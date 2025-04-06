@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	ConflictException,
 	Injectable,
 	InternalServerErrorException,
@@ -6,7 +7,7 @@ import {
 	UnauthorizedException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { AuthMethod } from '@prisma/__generated__'
+import { AuthMethod, TokenType } from '@prisma/__generated__'
 import { verify } from 'argon2'
 import { Request, Response } from 'express'
 
@@ -15,6 +16,9 @@ import { UserService } from '@/modules/user/user.service'
 
 import { LoginDto } from '../dto/login.dto'
 import { RegisterDto } from '../dto/register.dto'
+import { LoginInput } from '../inputs/login.input'
+import { RegisterInput } from '../inputs/register.input'
+import { RequestRegisterInput } from '../inputs/request-register.input'
 import { OAuthService } from '../oauth/oauth.service'
 
 import { EmailConfirmationService } from './email-confirmation.service'
@@ -31,31 +35,61 @@ export class AuthService {
 		private readonly sessionService: SessionService
 	) {}
 
-	public async register(dto: RegisterDto) {
-		const isExists = await this.userService.findByEmail(dto.email)
-		if (isExists) {
-			throw new ConflictException(
-				'User with this email already exists. Please use another email or log in.'
+	public async requestRegister(input: RequestRegisterInput) {
+		const user = await this.userService.findByEmail(input.email)
+
+		if (user) {
+			throw new ConflictException('User already exists. Please log in.')
+		}
+
+		await this.emailConfirmationService.sendVerificationToken(input.email)
+		return { message: 'Confirmation email sent successfully.' }
+	}
+
+	public async register(req: Request, input: RegisterInput) {
+		const existingToken = await this.prismaService.token.findUnique({
+			where: {
+				token: input.code,
+				type: TokenType.REGISTRATION
+			}
+		})
+
+		if (!existingToken) {
+			throw new NotFoundException(
+				'Confirmation token not found. Please make sure your token is correct.'
 			)
 		}
 
-		const newUser = await this.userService.create(
-			dto.email,
-			dto.password,
-			dto.name,
-			'',
-			AuthMethod.CREDENTIALS,
-			false
-		)
-		await this.emailConfirmationService.sendVerificationToken(newUser.email)
-		return {
-			message:
-				'You have successfully registered. Please confirm your email.'
+		const hasExpired = new Date(existingToken.expiresIn) < new Date()
+
+		if (hasExpired) {
+			throw new BadRequestException(
+				'Confirmation token has expired. Please request a new one.'
+			)
 		}
+
+		await this.prismaService.token.delete({
+			where: {
+				id: existingToken.id,
+				type: TokenType.REGISTRATION
+			}
+		})
+
+		const user = await this.prismaService.user.create({
+			data: {
+				email: existingToken.email,
+				password: input.password,
+				firstName: input.firstName,
+				lastName: input.lastName,
+				method: AuthMethod.CREDENTIALS
+			}
+		})
+
+		return this.sessionService.saveSession(req, user)
 	}
 
-	public async login(req: Request, dto: LoginDto) {
-		const user = await this.userService.findByEmail(dto.email)
+	public async login(req: Request, input: LoginInput) {
+		const user = await this.userService.findByEmail(input.email)
 
 		if (!user || !user.password) {
 			throw new NotFoundException(
@@ -63,7 +97,7 @@ export class AuthService {
 			)
 		}
 
-		const isValidPassword = await verify(user.password, dto.password)
+		const isValidPassword = await verify(user.password, input.password)
 
 		if (!isValidPassword) {
 			throw new UnauthorizedException(
@@ -107,52 +141,52 @@ export class AuthService {
 		})
 	}
 
-	public async extractProfileFromCode(
-		req: Request,
-		provider: string,
-		code: string
-	) {
-		const providerInstance = this.oauthService.findByService(provider)
+	// public async extractProfileFromCode(
+	// 	req: Request,
+	// 	provider: string,
+	// 	code: string
+	// ) {
+	// 	const providerInstance = this.oauthService.findByService(provider)
 
-		const profile = await providerInstance!.findUserByCode(code)
+	// 	const profile = await providerInstance!.findUserByCode(code)
 
-		const account = await this.prismaService.account.findFirst({
-			where: {
-				id: profile.id,
-				provider: profile.provider
-			}
-		})
+	// 	const account = await this.prismaService.account.findFirst({
+	// 		where: {
+	// 			id: profile.id,
+	// 			provider: profile.provider
+	// 		}
+	// 	})
 
-		let user = account?.userId
-			? await this.userService.findById(account.userId)
-			: null
+	// 	let user = account?.userId
+	// 		? await this.userService.findById(account.userId)
+	// 		: null
 
-		if (user) {
-			return this.sessionService.saveSession(req, user)
-		}
+	// 	if (user) {
+	// 		return this.sessionService.saveSession(req, user)
+	// 	}
 
-		user = await this.userService.create(
-			profile.email,
-			'',
-			profile.name,
-			profile.picture,
-			AuthMethod[profile.provider.toUpperCase()],
-			true
-		)
+	// 	user = await this.userService.create(
+	// 		profile.email,
+	// 		'',
+	// 		profile.name,
+	// 		profile.picture,
+	// 		AuthMethod[profile.provider.toUpperCase()],
+	// 		true
+	// 	)
 
-		if (!account) {
-			await this.prismaService.account.create({
-				data: {
-					userId: user.id,
-					type: 'oauth',
-					provider: profile.provider,
-					accessToken: profile.access_token,
-					refreshToken: profile.refresh_token,
-					expiresAt: profile.expires_at || 0
-				}
-			})
-		}
+	// 	if (!account) {
+	// 		await this.prismaService.account.create({
+	// 			data: {
+	// 				userId: user.id,
+	// 				type: 'oauth',
+	// 				provider: profile.provider,
+	// 				accessToken: profile.access_token,
+	// 				refreshToken: profile.refresh_token,
+	// 				expiresAt: profile.expires_at || 0
+	// 			}
+	// 		})
+	// 	}
 
-		return this.sessionService.saveSession(req, user)
-	}
+	// 	return this.sessionService.saveSession(req, user)
+	// }
 }

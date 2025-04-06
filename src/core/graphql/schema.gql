@@ -4,6 +4,7 @@
 
 type Mutation {
   register(input: RegisterInput!): String!
+  requestRegister(input: RequestRegisterInput!): String!
 }
 
 type Query {
@@ -11,10 +12,16 @@ type Query {
 }
 
 input RegisterInput {
-  email: String!
-  name: String!
+  """code from email"""
+  code: String!
+  firstName: String!
+  lastName: String!
   password: String!
   passwordRepeat: String!
+}
+
+input RequestRegisterInput {
+  email: String!
 }
 
 type UserModel {

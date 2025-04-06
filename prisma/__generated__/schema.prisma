@@ -11,15 +11,18 @@ datasource db {
 model User {
   id String @id @default(uuid())
 
-  email    String @unique
+  email String @unique
+
   password String
 
-  displayName String
-  picture     String?
+  firstName  String  @map("first_name")
+  lastName   String? @map("last_name")
+  middleName String? @map("middle_name")
+
+  picture String?
 
   role UserRole @default(REGULAR)
 
-  isVerified         Boolean @default(false) @map("is_verified")
   isTwoFactorEnabled Boolean @default(false) @map("is_two_factor_enabled")
 
   method AuthMethod
@@ -72,11 +75,11 @@ enum UserRole {
 enum AuthMethod {
   CREDENTIALS
   GOOGLE
-  YANDEX
+  FACEBOOK
 }
 
 enum TokenType {
-  VERIFICATION
+  REGISTRATION
   TWO_FACTOR
   PASSWORD_RESET
 }

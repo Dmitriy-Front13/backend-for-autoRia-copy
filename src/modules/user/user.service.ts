@@ -31,19 +31,19 @@ export class UserService {
 	public async create(
 		email: string,
 		password: string,
-		displayName: string,
+		firstName: string,
+		lastName: string,
 		picture: string,
-		method: AuthMethod,
-		isVerified: boolean
+		method: AuthMethod
 	) {
 		const user = await this.prismaService.user.create({
 			data: {
 				email,
 				password: password ? await hash(password) : '',
-				displayName,
+				firstName,
+				lastName,
 				picture,
-				method,
-				isVerified
+				method
 			},
 			include: {
 				accounts: true

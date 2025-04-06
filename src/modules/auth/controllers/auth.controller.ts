@@ -33,40 +33,26 @@ export class AuthController {
 		private readonly emailConfirmationService: EmailConfirmationService
 	) {}
 
-	@Recaptcha()
-	@Post('register')
-	@HttpCode(HttpStatus.OK)
-	public async register(@Body() dto: RegisterDto) {
-		return this.authService.register(dto)
-	}
+	// @UseGuards(OAuthGuard)
+	// @Get('/oauth/callback/:provider')
+	// public async callback(
+	// 	@Req() req: Request,
+	// 	@Res({ passthrough: true }) res: Response,
+	// 	@Query('code') code: string,
+	// 	@Param('provider') provider: string
+	// ) {
+	// 	if (!code) {
+	// 		throw new BadRequestException(
+	// 			'Не был предоставлен код авторизации.'
+	// 		)
+	// 	}
 
-	@Recaptcha()
-	@Post('login')
-	@HttpCode(HttpStatus.OK)
-	public async login(@Req() req: Request, @Body() dto: LoginDto) {
-		return this.authService.login(req, dto)
-	}
+	// 	await this.authService.extractProfileFromCode(req, provider, code)
 
-	@UseGuards(OAuthGuard)
-	@Get('/oauth/callback/:provider')
-	public async callback(
-		@Req() req: Request,
-		@Res({ passthrough: true }) res: Response,
-		@Query('code') code: string,
-		@Param('provider') provider: string
-	) {
-		if (!code) {
-			throw new BadRequestException(
-				'Не был предоставлен код авторизации.'
-			)
-		}
-
-		await this.authService.extractProfileFromCode(req, provider, code)
-
-		return res.redirect(
-			`${this.configService.getOrThrow<string>('ALLOWED_ORIGIN')}/dashboard/settings`
-		)
-	}
+	// 	return res.redirect(
+	// 		`${this.configService.getOrThrow<string>('ALLOWED_ORIGIN')}/dashboard/settings`
+	// 	)
+	// }
 
 	@UseGuards(OAuthGuard)
 	@Get('/oauth/connect/:provider')
@@ -85,14 +71,5 @@ export class AuthController {
 		@Res({ passthrough: true }) res: Response
 	) {
 		return this.authService.logout(req, res)
-	}
-
-	@Post('email-confirmation')
-	@HttpCode(HttpStatus.OK)
-	public async newVerification(
-		@Req() req: Request,
-		@Body() dto: ConfirmationDto
-	) {
-		return this.emailConfirmationService.newVerification(req, dto)
 	}
 }
