@@ -16,6 +16,6 @@ export const getMailerConfig = async (
 		}
 	},
 	defaults: {
-		from: '"Auto RIA team" onboarding@resend.dev'
+		from: '"Auto RIA team" autoriacopy@gmail.com'
 	}
 })
