@@ -81,7 +81,8 @@ export class AuthService {
 			}
 		})
 
-		return this.saveSession(req, user)
+		this.saveSession(req, user)
+		return { message: 'Login successful.' }
 	}
 
 	public async login(req: Request, input: LoginInput) {
@@ -116,7 +117,9 @@ export class AuthService {
 		//   )
 		// }
 
-		return this.saveSession(req, user)
+		this.saveSession(req, user)
+
+		return { message: 'Register successful.' }
 	}
 
 	public async extractProfileFromCode(
@@ -142,12 +145,12 @@ export class AuthService {
 		if (user) {
 			return this.saveSession(req, user)
 		}
-
+		const [firstName, lastName] = profile.name.split(' ')
 		user = await this.userService.create(
 			profile.email,
 			'',
-			profile.name,
-			profile.name,
+			firstName,
+			lastName,
 			profile.picture,
 			AuthMethod[profile.provider.toUpperCase()]
 		)

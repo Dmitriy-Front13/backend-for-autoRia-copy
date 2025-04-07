@@ -19,7 +19,7 @@ export class AuthResolver {
 		private readonly resetPasswordService: ResetPasswordService
 	) {}
 
-	@Mutation(() => String)
+	@Mutation(() => MessageResponse)
 	login(
 		@Args('input') input: LoginInput,
 		@Context() context: { req: Request }
@@ -27,7 +27,7 @@ export class AuthResolver {
 		return this.authService.login(context.req, input)
 	}
 
-	@Mutation(() => String)
+	@Mutation(() => MessageResponse)
 	register(
 		@Args('input') input: RegisterInput,
 		@Context() context: { req: Request }

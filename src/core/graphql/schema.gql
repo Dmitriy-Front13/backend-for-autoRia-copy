@@ -13,9 +13,9 @@ type MessageResponse {
 }
 
 type Mutation {
-  login(input: LoginInput!): String!
+  login(input: LoginInput!): MessageResponse!
   logout: Boolean!
-  register(input: RegisterInput!): String!
+  register(input: RegisterInput!): MessageResponse!
   requestRegister(input: RequestRegisterInput!): MessageResponse!
   requestResetPassword(input: ResetPasswordInput!): Boolean!
   resetPassword(input: NewPasswordInput!): Boolean!
@@ -30,7 +30,7 @@ input NewPasswordInput {
 }
 
 type Query {
-  findProfile: UserModel!
+  me: UserModel!
 }
 
 input RegisterInput {
@@ -51,7 +51,10 @@ input ResetPasswordInput {
 }
 
 type UserModel {
-  displayName: String!
   email: String!
-  picture: String!
+  firstName: String!
+  id: String!
+  isTwoFactorEnabled: Boolean!
+  lastName: String
+  picture: String
 }

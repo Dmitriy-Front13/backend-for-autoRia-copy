@@ -32,7 +32,7 @@ export class UserService {
 		email: string,
 		password: string,
 		firstName: string,
-		lastName: string,
+		lastName: string | undefined,
 		picture: string,
 		method: AuthMethod
 	) {

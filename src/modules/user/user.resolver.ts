@@ -9,8 +9,8 @@ import { UserService } from './user.service'
 export class UserResolver {
 	constructor(private readonly userService: UserService) {}
 	@Authorization()
-	@Query(() => UserModel, { name: 'findProfile' })
+	@Query(() => UserModel, { name: 'me' })
 	public async me(@Authorized('id') id: string) {
-		return this.userService.findById(id)
+		return await this.userService.findById(id)
 	}
 }
