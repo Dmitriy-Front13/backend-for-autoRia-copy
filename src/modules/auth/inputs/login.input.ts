@@ -23,6 +23,6 @@ export class LoginInput {
 
 	@IsOptional()
 	@IsString()
-	@Field(() => String, { nullable: true })
+	@Field(() => String, { nullable: true, description: 'code 2FA' })
 	code: string
 }

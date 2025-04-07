@@ -3,6 +3,7 @@
 # ------------------------------------------------------
 
 input LoginInput {
+  """code 2FA"""
   code: String
   email: String!
   password: String!
