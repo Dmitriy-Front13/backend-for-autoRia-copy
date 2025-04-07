@@ -2,14 +2,31 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input LoginInput {
+  code: String
+  email: String!
+  password: String!
+}
+
 type MessageResponse {
   message: String!
 }
 
 type Mutation {
+  login(input: LoginInput!): String!
   logout: Boolean!
   register(input: RegisterInput!): String!
   requestRegister(input: RequestRegisterInput!): MessageResponse!
+  requestResetPassword(input: ResetPasswordInput!): Boolean!
+  resetPassword(input: NewPasswordInput!): Boolean!
+}
+
+input NewPasswordInput {
+  password: String!
+  passwordRepeat: String!
+
+  """Token from email"""
+  token: String!
 }
 
 type Query {
@@ -26,6 +43,10 @@ input RegisterInput {
 }
 
 input RequestRegisterInput {
+  email: String!
+}
+
+input ResetPasswordInput {
   email: String!
 }
 

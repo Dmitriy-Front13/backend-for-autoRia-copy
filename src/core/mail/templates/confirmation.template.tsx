@@ -1,15 +1,15 @@
-import { Body, Container, Heading, Hr, Img, Section, Tailwind, Text } from "@react-email/components"
+import { Body, Container, Hr, Img, Section, Tailwind, Text } from "@react-email/components"
 import { Html } from "@react-email/html"
 import * as React from 'react'
 
 interface ConfirmationTemplateProps {
-	token: string
+	token: string,
+  
 }
 
 export function ConfirmationTemplate({
 	token
 }: ConfirmationTemplateProps) {
-
 	return (
 		<Tailwind>
 			<Html>

@@ -9,6 +9,7 @@ import { OAuthModule } from './oauth/oauth.module'
 import { AuthResolver } from './resolvers/auth.resolver'
 import { AuthService } from './services/auth.service'
 import { EmailConfirmationService } from './services/email-confirmation.service'
+import { ResetPasswordService } from './services/reset-password.service'
 
 @Module({
 	imports: [
@@ -20,6 +21,6 @@ import { EmailConfirmationService } from './services/email-confirmation.service'
 		})
 	],
 	controllers: [AuthController],
-	providers: [AuthService, EmailConfirmationService, AuthResolver]
+	providers: [AuthService, EmailConfirmationService, AuthResolver, ResetPasswordService]
 })
 export class AuthModule {}
