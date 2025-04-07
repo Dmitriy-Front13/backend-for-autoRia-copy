@@ -1,4 +1,8 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common'
 import { TokenType } from '@prisma/__generated__'
 import { hash } from 'argon2'
 import { v4 as uuidv4 } from 'uuid'
@@ -10,6 +14,7 @@ import { UserService } from '@/modules/user/user.service'
 import { NewPasswordInput } from '../inputs/new-password.input'
 import { ResetPasswordInput } from '../inputs/reset-password.input'
 
+@Injectable()
 export class ResetPasswordService {
 	constructor(
 		private readonly prismaService: PrismaService,

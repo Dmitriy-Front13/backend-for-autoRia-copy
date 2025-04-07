@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 
 import { MailModule } from '@/core/mail/mail.module'
+import { CronModule } from '@/modules/cron/cron.module'
 
 import { AuthModule } from '../modules/auth/auth.module'
 import { UserModule } from '../modules/user/user.module'
@@ -19,7 +20,8 @@ import { PrismaModule } from './prisma/prisma.module'
 		PrismaModule,
 		AuthModule,
 		UserModule,
-		MailModule
+		MailModule,
+		CronModule
 	]
 })
 export class AppModule {}
