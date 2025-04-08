@@ -124,7 +124,7 @@ exports.Prisma.UserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   middleName: 'middleName',
-  picture: 'picture',
+  avatar: 'avatar',
   role: 'role',
   isTwoFactorEnabled: 'isTwoFactorEnabled',
   method: 'method',

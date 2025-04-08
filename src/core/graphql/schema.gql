@@ -14,9 +14,11 @@ type MessageResponse {
 }
 
 type Mutation {
+  changeAvatar(avatar: Upload!): Boolean!
   login(input: LoginInput!): MessageResponse!
   logout: Boolean!
   register(input: RegisterInput!): MessageResponse!
+  removeProfileAvatar: Boolean!
   requestRegister(input: RequestRegisterInput!): MessageResponse!
   requestResetPassword(input: ResetPasswordInput!): Boolean!
   resetPassword(input: NewPasswordInput!): Boolean!
@@ -51,11 +53,14 @@ input ResetPasswordInput {
   email: String!
 }
 
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
 type UserModel {
+  avatar: String
   email: String!
   firstName: String!
   id: String!
   isTwoFactorEnabled: Boolean!
   lastName: String
-  picture: String
 }

@@ -45,7 +45,7 @@ export class StorageService {
 	public async remove(key: string) {
 		const command: DeleteObjectCommandInput = {
 			Bucket: this.bucket,
-			Key: String(key)
+			Key: key
 		}
 
 		try {

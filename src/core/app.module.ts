@@ -1,10 +1,11 @@
-import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
+import { type ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 
 import { MailModule } from '@/core/mail/mail.module'
 import { CronModule } from '@/modules/cron/cron.module'
+import { ProfileModule } from '@/modules/profile/profile.module'
 
 import { AuthModule } from '../modules/auth/auth.module'
 import { UserModule } from '../modules/user/user.module'
@@ -21,6 +22,8 @@ import { StorageModule } from './storage/storage.module'
 		PrismaModule,
 		AuthModule,
 		UserModule,
+		PrismaModule,
+		ProfileModule,
 		MailModule,
 		CronModule,
 		StorageModule

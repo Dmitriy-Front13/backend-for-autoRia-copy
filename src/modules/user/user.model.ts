@@ -15,7 +15,7 @@ export class UserModel {
 	lastName?: string
 
 	@Field(() => String, { nullable: true })
-	picture?: string
+	avatar?: string
 
 	@Field(() => Boolean)
 	isTwoFactorEnabled: boolean
