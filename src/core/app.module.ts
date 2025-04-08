@@ -12,6 +12,7 @@ import { IS_DEV_ENV } from '../shared/utils/is-dev.util'
 
 import { getGraphQLConfig } from './graphql/graphql.config'
 import { PrismaModule } from './prisma/prisma.module'
+import { StorageModule } from './storage/storage.module'
 
 @Module({
 	imports: [
@@ -21,7 +22,8 @@ import { PrismaModule } from './prisma/prisma.module'
 		AuthModule,
 		UserModule,
 		MailModule,
-		CronModule
+		CronModule,
+		StorageModule
 	]
 })
 export class AppModule {}
