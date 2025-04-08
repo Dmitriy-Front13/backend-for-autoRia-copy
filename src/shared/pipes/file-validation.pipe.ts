@@ -11,18 +11,18 @@ import { validateFileFormat, validateFileSize } from '../utils/file.util'
 export class FileValidationPipe implements PipeTransform {
 	public async transform(value: any) {
 		if (!value.filename) {
-			throw new BadRequestException('Файл не загружен')
+			throw new BadRequestException('File is not uploaded')
 		}
 
 		const { filename, createReadStream } = value
 
 		const fileStream = createReadStream() as ReadStream
 
-		const allowedFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif']
+		const allowedFormats = ['jpg', 'jpeg', 'png', 'webp']
 		const isFileFormatValid = validateFileFormat(filename, allowedFormats)
 
 		if (!isFileFormatValid) {
-			throw new BadRequestException('Неподдерживаемый формат файла')
+			throw new BadRequestException('Unsupported file format')
 		}
 
 		const isFileSizeValid = await validateFileSize(
@@ -31,7 +31,7 @@ export class FileValidationPipe implements PipeTransform {
 		)
 
 		if (!isFileSizeValid) {
-			throw new BadRequestException('Размер файла превышает 10 МБ')
+			throw new BadRequestException('File size exceeds 10 MB')
 		}
 
 		return value

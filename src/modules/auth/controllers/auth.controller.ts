@@ -33,7 +33,7 @@ export class AuthController {
 	) {
 		if (!code) {
 			throw new BadRequestException(
-				'Не был предоставлен код авторизации.'
+				'Authorization code was not provided.'
 			)
 		}
 
